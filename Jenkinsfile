@@ -11,9 +11,7 @@ pipeline {
 
         stage('Check Docker') {
             steps {
-                bat 'where docker'
-                bat 'docker --version'
-                bat 'docker info'
+                bat 'set "PATH=C:\\Users\\madhu\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin;%PATH%" && where docker && docker --version && docker info'
                 }
             }
 

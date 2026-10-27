@@ -2,6 +2,12 @@
 pipeline {
     agent any
 
+    environment {
+        PATH = "C:\\Users\\madhu\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin;${env.PATH}"
+        DOCKER_IMAGE = "madhunisha23/asset-system"
+        VERSION = "v1"
+    }
+
     stages {
         stage('Checkout') {
             steps {
@@ -11,14 +17,54 @@ pipeline {
 
         stage('Check Docker') {
             steps {
-                bat 'set "PATH=C:\\Users\\madhu\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin;%PATH%" && where docker && docker --version && docker info'
+                bat 'where docker'
+                bat 'docker --version'
+                bat 'docker info'
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                bat 'docker build -t %DOCKER_IMAGE%:%VERSION% .'
+            }
+        }
+
+        stage('Test Container Image') {
+            steps {
+                bat 'docker image inspect %DOCKER_IMAGE%:%VERSION%'
+            }
+        }
+
+        stage('Login to Docker Hub') {
+            steps {
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: 'dockerhub-credentials',
+                        usernameVariable: 'DOCKER_USER',
+                        passwordVariable: 'DOCKER_PASS'
+                    )
+                ]) {
+                    bat 'docker login -u "%DOCKER_USER%" --password-stdin'
                 }
             }
+        }
 
-        stage('Test Container') {
+        stage('Push to Docker Hub') {
             steps {
-                bat 'docker image inspect madhunisha23/asset-system:v1'
+                bat 'docker push %DOCKER_IMAGE%:%VERSION%'
             }
+        }
+    }
+
+    post {
+        success {
+            echo 'Asset System v1 pipeline completed successfully!'
+        }
+        failure {
+            echo 'Pipeline failed. Check the Console Output for the error.'
+        }
+        always {
+            bat 'docker logout'
         }
     }
 }

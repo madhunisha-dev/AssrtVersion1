@@ -29,7 +29,7 @@ pipeline {
             }
         }
 
-        stage('Test Container Image') {
+        stage('Test Docker Image') {
             steps {
                 bat 'docker image inspect %DOCKER_IMAGE%:%VERSION%'
             }
@@ -40,11 +40,11 @@ pipeline {
                 withCredentials([
                     usernamePassword(
                         credentialsId: 'dockerhub-credentials',
-                        usernameVariable: 'DOCKER_USER',
-                        passwordVariable: 'DOCKER_PASS'
+                        usernameVariable: 'madhunisha23',
+                        passwordVariable:
                     )
                 ]) {
-                    bat 'docker login -u "%DOCKER_USER%" --password-stdin'
+                    bat 'docker login -u "%DOCKER_USER%" --password-stdin < nul'
                 }
             }
         }
@@ -60,9 +60,11 @@ pipeline {
         success {
             echo 'Asset System v1 pipeline completed successfully!'
         }
+
         failure {
-            echo 'Pipeline failed. Check the Console Output for the error.'
+            echo 'Pipeline failed. Check Console Output for details.'
         }
+
         always {
             bat 'docker logout'
         }

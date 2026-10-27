@@ -9,11 +9,13 @@ pipeline {
             }
         }
 
-        stage('Build Docker Image') {
+        stage('Check Docker') {
             steps {
-                bat 'docker build -t madhunisha23/asset-system:v1 .'
+                bat 'where docker'
+                bat 'docker --version'
+                bat 'docker info'
+                }
             }
-        }
 
         stage('Test Container') {
             steps {
